@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title> New Data </title>			
+        <script>
+function getSelectionText() {
+    var text = "";
+    if (window.getSelection) {
+        text = window.getSelection().toString();
+    } else if (document.selection && document.selection.type != "Control") {
+        text = document.selection.createRange().text;
+    }
+    return text;
+}
+            document.onmouseup = document.onkeyup = document.onselectionchange = function() {
+  document.getElementById("sel").value = getSelectionText();
+};
+        </script>
+	</head>
+	<body>
+		<div align="center">
+			<table>
+				<h1>
+				<!--Displaying the converted table-->
+					{% for table in tables %}
+<!-- 					<h2>{{titles[loop.index]}}</h2>							 -->
+					{{ table|safe }}
+					{% endfor %}	
+				</h1>
+			</table>
+		</div>
+        
+        <br>
+        <textarea id="sel" rows="3" cols="50"></textarea>
+        <p>Please select some text.</p>
+        <input value="Some text in a text input">
+        <br>
+        <input type="search" value="Some text in a search input">
+        <br>
+        <input type="tel" value="4872349749823">
+        <br>
+        <textarea>Some text in a textarea</textarea>
+	</body>
+</html>
