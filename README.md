@@ -17,3 +17,4 @@ flask run
 - incorporate functions for buttons
 - incorporate regex
 - create input and output procedures/formats
+# auto-regex
