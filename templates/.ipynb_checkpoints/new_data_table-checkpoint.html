@@ -3,22 +3,65 @@
 	<head>
 		<title> New Data </title>			
         <script>
+
+function colorTagText(row){
+    // row = 0;
+    row_col0 = "row_"+row+"_col_0"
+    row_col1 = "row_"+row+"_col_1"
+    sms_text = document.getElementById(row_col0).innerHTML;
+    // remove previous colors
+    sms_text = sms_text.replaceAll('<font color="red">',"").replaceAll("</font>","")
+    tag_text = document.getElementById(row_col1).innerHTML;
+    tag_text = tag_text.replaceAll("<button>","").replaceAll("</button>","");
+    tag_texts = tag_text.split(',');
+    // alert(sms_text);
+    sms_text = sms_text.replaceAll(tag_texts, "<font color='red'>"+tag_texts+"</font>");
+    // alert(sms_text);
+    document.getElementById(row_col0).innerHTML = sms_text
+//     for (String tag : tag_texts) {
+//         sms_text = sms_text.replace(tag, "<font color='blue'>"+tag+"</font>");
+//         alert(sms_text);
+//     }
+    
+}
+            
+function colorAllRows(){
+    let ln = document.getElementsByTagName('td').length/2;
+    console.log('no. of rows in table:'+ln);
+    for (let i = 0; i < ln; i++) {
+        colorTagText(i);
+    }
+}
+            
 function getSelectionText() {
     var text = "";
     if (window.getSelection) {
-        text = window.getSelection().toString();
+        getsel = window.getSelection();
+        text = getsel.toString();
+        // console.log(getsel);
     } else if (document.selection && document.selection.type != "Control") {
-        text = document.selection.createRange().text;
+        getsel = document.selection;
+        text = getsel.selection.createRange().text;
+        // console.log(getsel);
     }
-    return text;
+    return [text, getsel.anchorNode.parentElement.id];
 }
-            document.onmouseup = document.onkeyup = document.onselectionchange = function() {
-  document.getElementById("sel").value = getSelectionText();
-};
+
+function addTagToRow(){
+    let values = getSelectionText();
+    text = values[0];
+    id = values[1];
+    row = id[4];
+    row_col0 = "row_"+row+"_col_0";
+    row_col1 = "row_"+row+"_col_1";
+    document.getElementById(row_col1).innerHTML = "<button>"+text+"</button>";
+}
+
+
         </script>
 	</head>
 	<body>
-		<div align="center">
+		<div align="center" id="tables_row">
 			<table>
 				<h1>
 				<!--Displaying the converted table-->
@@ -28,12 +71,14 @@ function getSelectionText() {
 					{% endfor %}	
 				</h1>
 			</table>
+            <button id='add_tag_button' onclick="addTagToRow()">Add Tag</button>
+            <button id='refresh_button' onclick="colorAllRows()">Refresh</button>
 		</div>
         
         <br>
         <textarea id="sel" rows="3" cols="50"></textarea>
         <p>Please select some text.</p>
-        <input value="Some text in a text input">
+        <input value="Some text in a dfghj input">
         <br>
         <input type="search" value="Some text in a search input">
         <br>
@@ -41,4 +86,14 @@ function getSelectionText() {
         <br>
         <textarea>Some text in a textarea</textarea>
 	</body>
+    <script>
+        document.getElementById("tables_row").style.color = "blue";
+// document.onmouseup = document.onkeyup = document.onselectionchange = function() {
+// document.onmousedown = function() {
+//   document.getElementById("row_0_col_1").innerHTML = "['"+getSelectionText()+"']";
+// };
+        </script>
 </html>
+
+        
+        
