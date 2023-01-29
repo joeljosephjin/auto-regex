@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, render_template_string, redirect, send_file
 import pandas as pd
 
 
@@ -37,13 +37,47 @@ def table_to_html(df):
     # print('out:',out)
     return out
 
-@app.route('/new_data_table', methods = ['GET', 'POST'])
+@app.route('/new_data_table')
 def table():
-    if request.method == 'POST':
-        f = request.files['file']
-        f.save('data/truth_uploaded.csv')
-        data = pd.read_csv('data/truth_uploaded.csv')
-    else:
-        data = pd.read_csv('data/truth.csv')
+    data = pd.read_csv('data/truth_uploaded.csv')
     return render_template('new_data_table.html', tables=[table_to_html(data)], titles=[''])
 
+@app.route('/upload_csv', methods = ['GET', 'POST'])
+def upload_csv():
+    f = request.files['file']
+    f.save('data/truth_uploaded.csv')
+    data = pd.read_csv('data/truth_uploaded.csv')
+    return render_template('new_data_table.html', tables=[table_to_html(data)], titles=[''])
+
+@app.route('/save_data', methods = ['POST'])
+def save_data():
+    data = pd.read_csv('data/truth_uploaded.csv')
+    if request.method == 'POST':
+        tags_dict = request.json
+        # import pdb; pdb.set_trace()
+        tags_new_dict = {}
+        for key, val in tags_dict.items():
+            index = eval(key.split('_')[1])
+            tag = val
+            if index in tags_new_dict.keys():
+                tags_new_dict[index].append(tag)
+            else:
+                tags_new_dict[index] = [tag]
+        for key, val in tags_new_dict.items():
+            # import pdb; pdb.set_trace()
+            index = key
+            tag = val
+            data.loc[index,'tags'] = val
+    
+    # import pdb; pdb.set_trace()
+    # print(data)
+    data.to_csv('data/truth_uploaded.csv', index=False)
+    
+    return tags_new_dict
+
+@app.route('/data/truth_uploaded', methods=['GET', 'POST'])
+def download():
+    # uploads = os.path.join(current_app.root_path, app.config['UPLOAD_FOLDER'])
+    # return send_from_directory(directory='data', filename='truth_uploaded.csv')
+    # import pdb; pdb.set_trace()
+    return send_file('data/truth_uploaded.csv', as_attachment=True)

@@ -95,12 +95,40 @@ function closeTag(el){
     el.remove();
 }
 
+function postCurrentStateToBackend(){
+    // get the tags as a list
+    tags_eles = document.getElementsByClassName('chip');
+    ln = tags_eles.length;
+    var tags_dict = {};
+    for (let i = 0; i < ln; i++) {
+        tags_dict[tags_eles[i].id] = tags_eles[i].textContent;
+    };
+    
+    fetch('http://localhost:5000/save_data', {
+    method: 'POST',
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(tags_dict)
+})
+.then(response => response.json())
+.then(response => console.log(response))
+    
+    // debugger;
+    // post them to backend
+}
+            
+function downloadAsCSV(){
+    postCurrentStateToBackend();    
+}
+            
         </script>
 	</head>
 	<body>
         <div id="upload_area">
 <!--             <button id="upload_button" onclick="uploadCSV()">Upload CSV</button> -->
-          <form action = "http://localhost:5000/new_data_table" method = "POST" enctype = "multipart/form-data">
+          <form action = "http://localhost:5000/upload_csv" method = "POST" enctype = "multipart/form-data">
              <input type = "file" name = "file" />
              <input type = "submit"/>
           </form>
@@ -118,6 +146,9 @@ function closeTag(el){
 			</table>
             <button id='add_tag_button' onclick="addTagToRow()">Add Tag</button>
             <button id='refresh_button' onclick="colorAllRows()">Refresh Coloring</button>
+            <button id='save_button' onclick="postCurrentStateToBackend()">Save Progress</button>
+<!--             <button id='upload_csv' href="data/truth_uploaded" download="truth_uploaded.csv">Download as CSV</button> -->
+            <a href="data/truth_uploaded" download="truth_uploaded.csv">Download</a>
 		</div>
 	</body>
     <script>
