@@ -1,6 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+        <style>
+.chip {
+  display: inline-block;
+  padding: 0 5px;
+  height: 20px;
+  font-size: 16px;
+  line-height: 20px;
+  border-radius: 25px;
+  background-color: #f1f1f1;
+}
+
+.closebtn {
+  padding-left: 5px;
+  color: #888;
+  font-weight: bold;
+/*   float: right; */
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.closebtn:hover {
+  color: #000;
+}
+        </style>
 		<title> New Data </title>			
         <script>
 
@@ -8,16 +32,14 @@ function colorTagText(row){
     // row = 0;
     row_col0 = "row_"+row+"_col_0"
     row_col1 = "row_"+row+"_col_1"
-    sms_text = document.getElementById(row_col0).innerHTML;
-    // remove previous colors
-    sms_text = sms_text.replaceAll('<font color="red">',"").replaceAll("</font>","")
-    tag_text = document.getElementById(row_col1).innerHTML;
-    tag_text = tag_text.replaceAll("<button>","").replaceAll("</button>","");
-    tag_texts = tag_text.split(',');
+    sms_text = document.getElementById(row_col0).textContent;
+    tags = document.getElementById(row_col1).getElementsByTagName("div")//[0].innerHTML;
+    // debugger;
+    for (let i = 0; i < tags.length; i++) {
+        sms_text = sms_text.replaceAll(tags[i].innerHTML, "<font style='background-color:green'>"+tags[i].innerHTML+"</font>");
+    }
     // alert(sms_text);
-    sms_text = sms_text.replaceAll(tag_texts, "<font color='red'>"+tag_texts+"</font>");
-    // alert(sms_text);
-    document.getElementById(row_col0).innerHTML = sms_text
+    document.getElementById(row_col0).innerHTML = sms_text;
 //     for (String tag : tag_texts) {
 //         sms_text = sms_text.replace(tag, "<font color='blue'>"+tag+"</font>");
 //         alert(sms_text);
@@ -54,13 +76,36 @@ function addTagToRow(){
     row = id[4];
     row_col0 = "row_"+row+"_col_0";
     row_col1 = "row_"+row+"_col_1";
-    document.getElementById(row_col1).innerHTML = "<button>"+text+"</button>";
+    i = document.getElementById(row_col1).getElementsByTagName('div').length;
+    document.getElementById(row_col1).innerHTML += `<div class='chip' id='row_${row}_col_1_i_${i}'>`+text+"</div>";
+    // alert('asdasd');
+    // debugger;
+    spanEle = document.createElement("span");
+    spanEle.setAttribute('class','closebtn');
+    spanEle.setAttribute('onclick',"closeTag(this)");
+    spanEle.innerHTML = "&times;";
+    document.getElementById(row_col1).innerHTML += spanEle.outerHTML
+    // debugger;
 }
 
+function closeTag(el){
+    // alert('closing!');
+    // debugger;
+    document.getElementById(el.previousSibling.id).remove();
+    el.remove();
+}
 
         </script>
 	</head>
 	<body>
+        <div id="upload_area">
+<!--             <button id="upload_button" onclick="uploadCSV()">Upload CSV</button> -->
+          <form action = "http://localhost:5000/new_data_table" method = "POST" enctype = "multipart/form-data">
+             <input type = "file" name = "file" />
+             <input type = "submit"/>
+          </form>
+        </div>
+        
 		<div align="center" id="tables_row">
 			<table>
 				<h1>
@@ -72,22 +117,11 @@ function addTagToRow(){
 				</h1>
 			</table>
             <button id='add_tag_button' onclick="addTagToRow()">Add Tag</button>
-            <button id='refresh_button' onclick="colorAllRows()">Refresh</button>
+            <button id='refresh_button' onclick="colorAllRows()">Refresh Coloring</button>
 		</div>
-        
-        <br>
-        <textarea id="sel" rows="3" cols="50"></textarea>
-        <p>Please select some text.</p>
-        <input value="Some text in a dfghj input">
-        <br>
-        <input type="search" value="Some text in a search input">
-        <br>
-        <input type="tel" value="4872349749823">
-        <br>
-        <textarea>Some text in a textarea</textarea>
 	</body>
     <script>
-        document.getElementById("tables_row").style.color = "blue";
+        // document.getElementById("tables_row").style.color = "blue";
 // document.onmouseup = document.onkeyup = document.onselectionchange = function() {
 // document.onmousedown = function() {
 //   document.getElementById("row_0_col_1").innerHTML = "['"+getSelectionText()+"']";
