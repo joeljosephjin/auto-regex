@@ -1,7 +1,7 @@
 sms,tags
+bank of india  account statement name abcd account no. 123456 account type savings account,['account no. 123456']
 bank of india  account statement name abcd account no. 123456 account type savings account,['account']
-bank of india  account statement name abcd account no. 123456 account type savings account,['a/c no 11111111']
-bank of india  account statement name abcd account no. 123456 account type savings account,['account']
+bank of india  account statement name abcd account no. 123456 account type savings account,"['savings', 'acc']"
 bank of india  account statement name abcd account no. 123456 account type savings account,"['account no. 123456', 'account']"
 bank of india  account statement name abcd account no. 123456 account type savings account,"['account no. 123456', 'account']"
 bank of india  account statement name abcd account no. 123456 account type savings account,"['account no. 123456', 'account']"

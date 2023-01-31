@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, render_template_string, redirect, send_file
 import pandas as pd
+import re
 
 
 app = Flask(__name__)
@@ -36,6 +37,8 @@ def table_to_html(df):
 </table>"""
     # print('out:',out)
     return out
+
+data = pd.read_csv('data/truth_uploaded.csv')
 
 @app.route('/new_data_table')
 def table():
@@ -75,9 +78,18 @@ def save_data():
     
     return tags_new_dict
 
-@app.route('/data/truth_uploaded', methods=['GET', 'POST'])
+@app.route('/data/truth_uploaded', methods=['GET'])
 def download():
-    # uploads = os.path.join(current_app.root_path, app.config['UPLOAD_FOLDER'])
-    # return send_from_directory(directory='data', filename='truth_uploaded.csv')
-    # import pdb; pdb.set_trace()
     return send_file('data/truth_uploaded.csv', as_attachment=True)
+
+@app.route('/apply_pattern', methods = ['POST'])
+def apply_pattern():
+    pattern_text = request.json['pattern']
+    
+    detected_tags = {}
+    for index, row in data.iterrows():
+        main_text = str(data.loc[index, 'sms'])
+        detected_tags[index] = list(set([x.group() for x in re.finditer(pattern_text, main_text)]))
+        
+    return detected_tags
+    

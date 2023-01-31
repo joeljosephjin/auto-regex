@@ -68,24 +68,25 @@ function getSelectionText() {
     }
     return [text, getsel.anchorNode.parentElement.id];
 }
+            
+function addChip(row,text){
+    row_col0 = "row_"+row+"_col_0";
+    row_col1 = "row_"+row+"_col_1";
+    i = document.getElementById(row_col1).getElementsByTagName('div').length;
+    document.getElementById(row_col1).innerHTML += `<div class='chip' id='row_${row}_col_1_i_${i}'>`+text+"</div>";
+    spanEle = document.createElement("span");
+    spanEle.setAttribute('class','closebtn');
+    spanEle.setAttribute('onclick',"closeTag(this)");
+    spanEle.innerHTML = "&times;";
+    document.getElementById(row_col1).innerHTML += spanEle.outerHTML;
+}
 
 function addTagToRow(){
     let values = getSelectionText();
     text = values[0];
     id = values[1];
     row = id[4];
-    row_col0 = "row_"+row+"_col_0";
-    row_col1 = "row_"+row+"_col_1";
-    i = document.getElementById(row_col1).getElementsByTagName('div').length;
-    document.getElementById(row_col1).innerHTML += `<div class='chip' id='row_${row}_col_1_i_${i}'>`+text+"</div>";
-    // alert('asdasd');
-    // debugger;
-    spanEle = document.createElement("span");
-    spanEle.setAttribute('class','closebtn');
-    spanEle.setAttribute('onclick',"closeTag(this)");
-    spanEle.innerHTML = "&times;";
-    document.getElementById(row_col1).innerHTML += spanEle.outerHTML
-    // debugger;
+    addChip(row,text);
 }
 
 function closeTag(el){
@@ -118,20 +119,92 @@ function postCurrentStateToBackend(){
     // debugger;
     // post them to backend
 }
+          
+function removeTempChip(row,text){
+    // row_col1 = "row_"+row+"_col_1";
+    id = `row_${row}_${text}`;
+    // debugger;
+    document.getElementById(id).remove()
+    document.getElementById(id).remove()
+    
+}
             
-function downloadAsCSV(){
-    postCurrentStateToBackend();    
+function openTag(el){
+    row = el.parentElement.id.split('_')[1];
+    text = el.previousSibling.textContent;
+    addChip(row,text);
+    
+    removeTempChip(row,text);    
+}
+            
+function addTempChip(temp_chip_text,row){
+    row_col1 = "row_"+row+"_col_1";
+    id = `row_${row}_${temp_chip_text}`
+    document.getElementById(row_col1).innerHTML += `<div class='temp_chip' id=${id}>`+temp_chip_text+"</div>";
+    spanEle = document.createElement("span");
+    spanEle.setAttribute('class','openbtn');
+    spanEle.setAttribute('id',id);
+    spanEle.setAttribute('onclick',"openTag(this)");
+    spanEle.innerHTML = "&check;";
+    document.getElementById(row_col1).innerHTML += spanEle.outerHTML
+}
+            
+function createTempChips(response){
+    ln = Object.keys(response).length;
+    // debugger;
+    for (let i = 0; i < ln; i++) {
+        if (response[i]!=0){
+        addTempChip(response[i],Object.keys(response)[i]);
+        }
+    }
+}
+            
+function applyPattern(){
+    pattern_text = document.getElementById('apply_pattern_regex').value;
+    // debugger;    
+    let pattern_dict = {};
+    pattern_dict['pattern'] = pattern_text;
+    
+    fetch('http://localhost:5000/apply_pattern', {
+    method: 'POST',
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(pattern_dict)
+})
+.then(response => response.json())
+.then(response => createTempChips(response))
+    
+}
+            
+function removePattern(){
+    temp_chips = document.getElementsByClassName('temp_chip');
+    openbtns = document.getElementsByClassName('openbtn');
+    ln = temp_chips.length;
+    for (let i = 0; i < ln; i++) {
+        console.log(i, temp_chips[i], openbtns[i]);
+        temp_chips[0].remove();
+        // debugger;
+        openbtns[0].remove();
+    };
 }
             
         </script>
 	</head>
 	<body>
         <div id="upload_area">
-<!--             <button id="upload_button" onclick="uploadCSV()">Upload CSV</button> -->
           <form action = "http://localhost:5000/upload_csv" method = "POST" enctype = "multipart/form-data">
              <input type = "file" name = "file" />
              <input type = "submit"/>
           </form>
+        </div>
+        
+        
+        <div id="regex_pattern" style="padding-top:40px; padding-left:80px; text-align:center">
+            <input id="apply_pattern_regex" type="text"/>
+            <button id="apply_pattern_button" onclick="applyPattern()">Apply Pattern</button>
+            <button id="remove_pattern_button" onclick="removePattern()">Remove Pattern Suggestions</button>
         </div>
         
 		<div align="center" id="tables_row">
