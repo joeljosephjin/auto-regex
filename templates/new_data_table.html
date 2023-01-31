@@ -36,7 +36,7 @@ function colorTagText(row){
     tags = document.getElementById(row_col1).getElementsByTagName("div")//[0].innerHTML;
     // debugger;
     for (let i = 0; i < tags.length; i++) {
-        sms_text = sms_text.replaceAll(tags[i].innerHTML, "<font style='background-color:green'>"+tags[i].innerHTML+"</font>");
+        sms_text = sms_text.replaceAll(tags[i].innerHTML, "<font style='background-color:green;color:white'>"+tags[i].innerHTML+"</font>");
     }
     // alert(sms_text);
     document.getElementById(row_col0).innerHTML = sms_text;
@@ -87,6 +87,8 @@ function addTagToRow(){
     id = values[1];
     row = id[4];
     addChip(row,text);
+    
+    colorAllRows();
 }
 
 function closeTag(el){
@@ -94,6 +96,8 @@ function closeTag(el){
     // debugger;
     document.getElementById(el.previousSibling.id).remove();
     el.remove();
+    
+    colorAllRows();
 }
 
 function postCurrentStateToBackend(){
@@ -127,6 +131,8 @@ function removeTempChip(row,text){
     document.getElementById(id).remove()
     document.getElementById(id).remove()
     
+    colorAllRows();
+    
 }
             
 function openTag(el){
@@ -134,7 +140,10 @@ function openTag(el){
     text = el.previousSibling.textContent;
     addChip(row,text);
     
-    removeTempChip(row,text);    
+    removeTempChip(row,text);   
+    
+    colorAllRows();
+    
 }
             
 function addTempChip(temp_chip_text,row){
@@ -157,6 +166,9 @@ function createTempChips(response){
         addTempChip(response[i],Object.keys(response)[i]);
         }
     }
+    
+    colorAllRows();
+    
 }
             
 function applyPattern(){
@@ -188,11 +200,14 @@ function removePattern(){
         // debugger;
         openbtns[0].remove();
     };
+    
+    colorAllRows();
+    
 }
             
         </script>
 	</head>
-	<body>
+	<body onload="colorAllRows()">
         <div id="upload_area">
           <form action = "http://localhost:5000/upload_csv" method = "POST" enctype = "multipart/form-data">
              <input type = "file" name = "file" />
