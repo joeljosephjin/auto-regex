@@ -27,11 +27,14 @@
         </style>
 		<title> New Data </title>			
         <script>
+            
+
 
 function colorTagText(row){
     // row = 0;
-    row_col0 = "row_"+row+"_col_0"
-    row_col1 = "row_"+row+"_col_1"
+    console.log(`colorTagText, row ${row}`);
+    row_col0 = "row_"+row+"_col_0";
+    row_col1 = "row_"+row+"_col_1";
     sms_text = document.getElementById(row_col0).textContent;
     tags = document.getElementById(row_col1).getElementsByTagName("div")//[0].innerHTML;
     // debugger;
@@ -48,10 +51,11 @@ function colorTagText(row){
 }
             
 function colorAllRows(){
+    let startInd = parseInt(document.getElementsByTagName('th')[3].textContent);
     let ln = document.getElementsByTagName('td').length/2;
     console.log('no. of rows in table:'+ln);
     for (let i = 0; i < ln; i++) {
-        colorTagText(i);
+        colorTagText(i+startInd);
     }
 }
             
@@ -73,6 +77,7 @@ function addChip(row,text){
     row_col0 = "row_"+row+"_col_0";
     row_col1 = "row_"+row+"_col_1";
     i = document.getElementById(row_col1).getElementsByTagName('div').length;
+    console.log(`adding a chip to row ${row} with text ${text}`);
     document.getElementById(row_col1).innerHTML += `<div class='chip' id='row_${row}_col_1_i_${i}'>`+text+"</div>";
     spanEle = document.createElement("span");
     spanEle.setAttribute('class','closebtn');
@@ -85,7 +90,8 @@ function addTagToRow(){
     let values = getSelectionText();
     text = values[0];
     id = values[1];
-    row = id[4];
+    row = id.split('_')[1];
+    console.log(`add tag to row with id ${id} row ${row}`);
     addChip(row,text);
     
     colorAllRows();
@@ -103,11 +109,28 @@ function closeTag(el){
 function postCurrentStateToBackend(){
     // get the tags as a list
     tags_eles = document.getElementsByClassName('chip');
+    td_tags = document.getElementsByTagName('td');
     ln = tags_eles.length;
     var tags_dict = {};
-    for (let i = 0; i < ln; i++) {
-        tags_dict[tags_eles[i].id] = tags_eles[i].textContent;
+    // debugger;
+    for (let i = 0; i < td_tags.length/2; i++) {
+        // debugger;
+        let j = 2*i+1;
+        let td_id = td_tags[j].id+'_i_0';
+        if (td_tags[j].childNodes.length!=0)
+        {
+            
+            for (let k = 0; k < td_tags[j].childNodes.length/2; k++) {
+                td_id = td_tags[j].id+'_i_'+k;
+                tags_dict[td_id] = td_tags[j].childNodes[2*k].textContent;
+            }
+        }
+        else{
+            tags_dict[td_id] = '';
+        }
     };
+    
+    console.log(`save csv with tags_dict: ${tags_dict}`);
     
     fetch('http://localhost:5000/save_data', {
     method: 'POST',
@@ -147,6 +170,7 @@ function openTag(el){
 }
             
 function addTempChip(temp_chip_text,row){
+    console.log(`add temp chip, temp_chip_text ${temp_chip_text}, row ${row}`)
     row_col1 = "row_"+row+"_col_1";
     id = `row_${row}_${temp_chip_text}`
     document.getElementById(row_col1).innerHTML += `<div class='temp_chip' id=${id}>`+temp_chip_text+"</div>";
@@ -159,11 +183,13 @@ function addTempChip(temp_chip_text,row){
 }
             
 function createTempChips(response){
+    let startInd = parseInt(document.getElementsByTagName('th')[3].textContent);
     ln = Object.keys(response).length;
     // debugger;
     for (let i = 0; i < ln; i++) {
-        if (response[i]!=0){
-        addTempChip(response[i],Object.keys(response)[i]);
+        if (response[i+startInd]!=0){
+            // debugger;
+        addTempChip(response[i+startInd],Object.keys(response)[i]);
         }
     }
     
@@ -208,6 +234,9 @@ function removePattern(){
         </script>
 	</head>
 	<body onload="colorAllRows()">
+        
+        <a href="http://localhost:5000/new_data_table"><center><img src="static/home.png" alt="Home" width="80" height="80"></center></a>
+        
         <div id="upload_area">
           <form action = "http://localhost:5000/upload_csv" method = "POST" enctype = "multipart/form-data">
              <input type = "file" name = "file" />
@@ -220,6 +249,15 @@ function removePattern(){
             <input id="apply_pattern_regex" type="text"/>
             <button id="apply_pattern_button" onclick="applyPattern()">Apply Pattern</button>
             <button id="remove_pattern_button" onclick="removePattern()">Remove Pattern Suggestions</button>
+        </div>
+        
+        <div id="scroll">
+            <form action = "http://localhost:5000/scroll_up" method = "POST" enctype = "multipart/form-data">
+             <input type = "Submit" value="Up"/>
+          </form>
+            <form action = "http://localhost:5000/scroll_down" method = "POST" enctype = "multipart/form-data">
+             <input type = "Submit" value="Down"/>
+          </form>
         </div>
         
 		<div align="center" id="tables_row">
@@ -235,16 +273,11 @@ function removePattern(){
             <button id='add_tag_button' onclick="addTagToRow()">Add Tag</button>
             <button id='refresh_button' onclick="colorAllRows()">Refresh Coloring</button>
             <button id='save_button' onclick="postCurrentStateToBackend()">Save Progress</button>
-<!--             <button id='upload_csv' href="data/truth_uploaded" download="truth_uploaded.csv">Download as CSV</button> -->
             <a href="data/truth_uploaded" download="truth_uploaded.csv">Download</a>
 		</div>
 	</body>
     <script>
-        // document.getElementById("tables_row").style.color = "blue";
-// document.onmouseup = document.onkeyup = document.onselectionchange = function() {
-// document.onmousedown = function() {
-//   document.getElementById("row_0_col_1").innerHTML = "['"+getSelectionText()+"']";
-// };
+
         </script>
 </html>
 
