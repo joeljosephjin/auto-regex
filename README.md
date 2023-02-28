@@ -4,10 +4,15 @@
 
 `
 export FLASK_APP=app
+
 export FLASK_DEBUG=TRUE
+
 flask run
 `
 
+# Requirements
+
+Python 3.10.0
 
 ## To Do:
 
