@@ -120,6 +120,16 @@ def scroll_up():
     end -= selection
     
     return table(starts=start,ends=end)
+
+@app.route('/go_to_row', methods=['POST'])
+def go_to_row():
+    global start, end
+    
+    # import pdb; pdb.set_trace()
+    start = int(request.form['row_no'])
+    end = start + selection
+    
+    return table(starts=start,ends=end)
     
 if __name__=="__main__":
     app.run(debug=True)
