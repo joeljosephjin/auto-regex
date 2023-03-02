@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, render_template_string, redirect, send_file
 import pandas as pd
 import re
+import time
 
 
 app = Flask(__name__)
@@ -46,19 +47,27 @@ start = 0
 end = start + selection
 data = pd.read_csv('data/truth_uploaded.csv')#.loc[:selection]
 
+pattern_text = ""
+
 @app.route('/new_data_table')
 def table(data_path='data/truth_uploaded.csv', starts=0, ends=selection):
     x, y = starts, ends
     global start, end
     start, end = x, y
-    data = pd.read_csv(data_path)#.loc[:selection]
-    return render_template('new_data_table.html', tables=[table_to_html(data, start=start, end=end)], titles=[''])
+    try:
+        data = pd.read_csv(data_path)
+    except:
+        print('About to sleep to let time for saving csv!...')
+        time.sleep(5)
+        data = pd.read_csv(data_path)
+        
+    return render_template('new_data_table.html', tables=[table_to_html(data, start=start, end=end)], titles=[''], pattern=pattern_text)
 
 @app.route('/upload_csv', methods = ['GET', 'POST'])
 def upload_csv():
     f = request.files['file']
     f.save('data/truth_uploaded.csv')
-    data = pd.read_csv('data/truth_uploaded.csv').loc[:selection]
+    data = pd.read_csv('data/truth_uploaded.csv')
     return table()
     # return render_template('new_data_table.html', tables=[table_to_html(data)], titles=[''])
 
@@ -94,6 +103,7 @@ def download():
 
 @app.route('/apply_pattern', methods = ['POST'])
 def apply_pattern():
+    global pattern_text
     pattern_text = request.json['pattern']
     
     detected_tags = {}

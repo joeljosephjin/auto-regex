@@ -246,17 +246,17 @@ function removePattern(){
         
         
         <div id="regex_pattern" style="padding-top:40px; padding-left:80px; text-align:center">
-            <input id="apply_pattern_regex" type="text"/>
+            <input id="apply_pattern_regex" type="text" value="{{ pattern }}"/>
             <button id="apply_pattern_button" onclick="applyPattern()">Apply Pattern</button>
             <button id="remove_pattern_button" onclick="removePattern()">Remove Pattern Suggestions</button>
         </div>
         
         <div id="scroll">
             <form action = "http://localhost:5000/scroll_up" method = "POST" enctype = "multipart/form-data">
-             <input type = "Submit" value="Up"/>
+             <input type = "Submit" value="Up" onclick="postCurrentStateToBackend()"/>
           </form>
             <form action = "http://localhost:5000/scroll_down" method = "POST" enctype = "multipart/form-data">
-             <input type = "Submit" value="Down"/>
+             <input type = "Submit" value="Down" onclick="postCurrentStateToBackend()"/>
           </form>
         </div>
         
